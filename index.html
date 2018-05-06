@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+
+
+
+  <style>
+    body {
+      max-width: 100%;
+      margin-left: 100px;
+      width: 90%;
+      display: block;
+    }
+
+    .jumbotron {
+      background-color: black;
+      color: white;
+      text-align: center;
+    }
+
+    h4 {
+      margin-top: 25px;
+      margin-left: 15px;
+    }
+  </style>
+
+
+
+  <title>Chopper!!</title>
+</head>
+
+<body>
+
+  <!-- HTML -->
+  <div class="container">
+    <div class="jumbotron">
+      <h1>
+        <i class="far fa-newspaper"></i> Get to the Chopper!!
+      </h1>
+    </div>
+  </div>
+
+  <div class="card card-primary" id="currentEmployees">
+    <div class="card-heading">
+      <h4 class="card-title">
+        <strong>Current Chopper Schedule</strong>
+      </h4>
+    </div>
+    <div class="card-body">
+      <table class="table table-hover" id='employee-table'>
+        <thead>
+          <tr>
+            <th>Chopper Name</th>
+            <th>Destination</th>
+            <th>Frequency (min)</th>
+            <th>Next Arrival</th>
+            <th>Minutes Away</th>
+          </tr>
+        </thead>
+        <tbody id="table">
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">Add Chopper!!</h4>
+        </div>
+        <div class="panel-body">
+          <form>
+            <div class="form-group">
+              <label for="chopper-name">Chopper Name</label>
+              <input class="form-control" id="chopperNameInput" type="text">
+            </div>
+            <div class="form-group">
+              <label for="destination">Destination</label>
+              <input class="form-control" id="destinationInput" type="text">
+            </div>
+            <div class="form-group">
+              <label for="first-chopper-time">First Chopper Time (HH:mm - military time)</label>
+              <input class="form-control" id="firstChopperInput" type="text">
+            </div>
+            <div class="form-group">
+              <label for="freguency">Frequency (min)</label>
+              <input class="form-control" id="frequencyInput" type="text">
+            </div>
+            <button class="btn btn-primary" id="submit" type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+
+  <script>
+
+    var config = {
+      apiKey: "AIzaSyCCV-MJyup-ew1L034hfm4vFnO_c6qN5L0",
+      authDomain: "train-time-bff37.firebaseapp.com",
+      databaseURL: "https://train-time-bff37.firebaseio.com",
+      projectId: "train-time-bff37",
+      storageBucket: "train-time-bff37.appspot.com",
+      messagingSenderId: "248766814727"
+
+
+
+    };
+
+    firebase.initializeApp(config);
+
+    var database = firebase.database();
+
+    var chopperName = "";
+    var destination = "";
+    var firstChopper = "";
+    var frequency = "";
+    var nextChopper = "";
+    var minutesAway = "";
+
+
+
+    $("#submit").on("click", function (event) {
+      event.preventDefault();
+     var now = moment();
+      chopperName = $("#chopperNameInput")
+        .val()
+        .trim();
+      destination = $("#destinationInput")
+        .val()
+        .trim();
+      firstChopper = $("#firstChopperInput")
+        .val()
+        .trim();
+      frequency = $("#frequencyInput")
+        .val()
+        .trim();
+      
+      var timeArray = firstChopper.split(":");   
+
+      startTime = moment().hour(timeArray[0]).minute(timeArray[1])
+
+      
+      // create var set to min or max and console log it 
+      // max, min determine now vs start time .max() .min() .diff() 
+      // assign max or min to var, use that in .diff() 
+      // if your start time is later , then you display that as your next arrival
+      // else do calculations
+
+      // calculations: difference now vs start time in minutes
+      // difference modulus operator(%) of frequency
+      // that becomes number of minutes between now and next Arrival
+
+      newChopper = { name: chopperName, dest: destination, first: firstChopper, freq: frequency, next: nextChopper, min: minutesAway };
+
+      database.ref().push(newChopper);
+
+      $("#chopperNameInput").val("");
+      $("#destinationInput").val("");
+      $("#firstChopperInput").val("");
+      $("#frequencyInput").val("");
+    });
+
+
+
+    database.ref().on("child_added", function (childSnap) {
+
+      chopperName = childSnap.val().name;
+      destination = childSnap.val().dest;
+      firstChopperTime = childSnap.val().first;
+      frequency = childSnap.val().freq;
+
+      addRow();
+    });
+
+    function addRow() {
+      $("#table").append(
+        "<tr><td>" +
+        chopperName +
+        "</td><td>" +
+        destination +
+        "</td><td>" +
+        frequency +
+        "</td><td>" +
+        nextChopper +
+        "</td><td>" +
+        minutesAway +
+        "</td><td>"
+      );
+
+    }
+
+
+
+
+
+  </script>
+</body>
+
+</html>
